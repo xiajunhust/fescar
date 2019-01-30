@@ -16,6 +16,12 @@
 
 package com.alibaba.fescar.server.coordinator;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import com.alibaba.fescar.common.XID;
 import com.alibaba.fescar.common.thread.NamedThreadFactory;
 import com.alibaba.fescar.core.exception.TransactionException;
@@ -55,15 +61,12 @@ import com.alibaba.fescar.server.session.SessionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import static com.alibaba.fescar.core.exception.TransactionExceptionCode.FailedToSendBranchCommitRequest;
 import static com.alibaba.fescar.core.exception.TransactionExceptionCode.FailedToSendBranchRollbackRequest;
 
+/**
+ * The type Default coordinator.
+ */
 public class DefaultCoordinator extends AbstractTCInboundHandler
     implements TransactionMessageHandler, ResourceManagerInbound {
 
@@ -73,6 +76,11 @@ public class DefaultCoordinator extends AbstractTCInboundHandler
 
     private Core core = CoreFactory.get();
 
+    /**
+     * Instantiates a new Default coordinator.
+     *
+     * @param messageSender the message sender
+     */
     public DefaultCoordinator(ServerMessageSender messageSender) {
         this.messageSender = messageSender;
         core.setResourceManagerInbound(this);
@@ -214,14 +222,10 @@ public class DefaultCoordinator extends AbstractTCInboundHandler
             try {
                 core.doGlobalRollback(rollbackingSession, true);
             } catch (TransactionException ex) {
-<<<<<<< HEAD
                 LOGGER.info(
                     "Failed to retry rollbacking [" + rollbackingSession.getTransactionId() + "] " + ex.getCode() + " "
                         + ex.getMessage());
-=======
-                LOGGER.info("Failed to retry rollbacking [{}] {} {}",
                         rollbackingSession.getTransactionId(), ex.getCode(), ex.getMessage());
->>>>>>> 5357a7b94921baa86402c5e87c265d5c6a178f84
             }
         }
     }
@@ -232,14 +236,8 @@ public class DefaultCoordinator extends AbstractTCInboundHandler
             try {
                 core.doGlobalCommit(committingSession, true);
             } catch (TransactionException ex) {
-<<<<<<< HEAD
-                LOGGER.info(
-                    "Failed to retry committing [" + committingSession.getTransactionId() + "] " + ex.getCode() + " "
-                        + ex.getMessage());
-=======
                 LOGGER.info("Failed to retry committing [{}] {} {}",
                         committingSession.getTransactionId(), ex.getCode(), ex.getMessage());
->>>>>>> 5357a7b94921baa86402c5e87c265d5c6a178f84
             }
         }
     }
@@ -252,7 +250,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler
                 core.doGlobalCommit(asyncCommittingSession, true);
             } catch (TransactionException ex) {
                 LOGGER.info("Failed to async committing [{}] {} {}",
-                        asyncCommittingSession.getTransactionId(), ex.getCode(), ex.getMessage());
+                    asyncCommittingSession.getTransactionId(), ex.getCode(), ex.getMessage());
             }
         }
     }
@@ -269,6 +267,9 @@ public class DefaultCoordinator extends AbstractTCInboundHandler
     private ScheduledThreadPoolExecutor timeoutCheck = new ScheduledThreadPoolExecutor(1,
         new NamedThreadFactory("TxTimeoutCheck", 1));
 
+    /**
+     * Init.
+     */
     public void init() {
         retryRollbacking.scheduleAtFixedRate(new Runnable() {
 
